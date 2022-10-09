@@ -1,5 +1,5 @@
-float64 x      # goal in y-axis
-float64 y      # goal in x-axis
+float64 x      # goal in x-axis
+float64 y      # goal in y-axis
 float64 delta  # acceptable tolerance
 ---
 bool success   # indicate successful run of triggered service
