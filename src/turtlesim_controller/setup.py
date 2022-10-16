@@ -4,11 +4,10 @@ package_name = 'turtlesim_controller'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.0.1',
     packages=[package_name],
     data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
+        ('share/ament_index/resource_index/packages', ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
     install_requires=['setuptools'],
@@ -20,8 +19,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'turtlesim_controller=turtlesim_controller.controller:main',
-            'turtlesim_go_to=turtlesim_controller.go_to:main'
+            'controller=turtlesim_controller.controller:main',
+            'client=turtlesim_controller.controller_client:main'
         ],
     },
 )
