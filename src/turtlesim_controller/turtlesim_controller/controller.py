@@ -187,7 +187,7 @@ class TurtlesimController(Node):
 
     def execute_callback(self, goal_handle: ServerGoalHandle):
         """Callback function for processing accepted goals. This is called if when
-        :class:`ServerGoalHandle.execute()` is called for a goal handle that is being tracked by
+        `ServerGoalHandle.execute()` is called for a goal handle that is being tracked by
         this action server.
 
         Parameters
