@@ -24,13 +24,18 @@ class TurtlesimController(Node):
     parameters to the turtle simulation node.
     """
 
-    def parameter_callback(self, parameters: List[Parameter]):
-        """Callback function executed whenever it receives a message to handle parameters
+    def parameter_callback(self, parameters: List[Parameter]) -> SetParametersResult:
+        """Callback function executed whenever it receives a message to handle parameters.
 
         Parameters
         ----------
         params: List[Parameter]
             Message with new parameters to update.
+
+        Returns
+        ------- 
+        SetParametersResult
+            Message with the result after executed parameter callback.
         """
         for param in parameters:
             if param.name == 'kp_angular':
@@ -49,7 +54,7 @@ class TurtlesimController(Node):
                 return SetParametersResult(successful=False)
         return SetParametersResult(successful=True)
 
-    def __init__(self, node_name: str = 'turtlesim_controller'):
+    def __init__(self, node_name: str = 'turtlesim_controller') -> None:
         """Constructs all the necessary attributes for the TurtlesimController object.
 
         Parameters
@@ -140,7 +145,7 @@ class TurtlesimController(Node):
         self.add_on_set_parameters_callback(self.parameter_callback)
         self.get_logger().info("Init turtlesim_controller")
 
-    def destroy(self):
+    def destroy(self) -> None:
         """Helper function to terminate action server and node.
         """
         self._action_server.destroy()
@@ -153,11 +158,16 @@ class TurtlesimController(Node):
         ----------
         params: TurtleTask.Goal
             Message with new goal request.
+
+        Returns
+        -------
+        GoalResponse.ACCEPT
+            Always returns accept if received action goal request.
         """
         self.get_logger().info("Received goal request")
         return GoalResponse.ACCEPT
 
-    def handle_accepted_callback(self, goal_handle: ServerGoalHandle):
+    def handle_accepted_callback(self, goal_handle: ServerGoalHandle) -> None:
         """Callback function for handling newly accepted goals.
 
         Parameters
@@ -174,18 +184,23 @@ class TurtlesimController(Node):
             self._goal_handle = goal_handle
         goal_handle.execute()
 
-    def cancel_callback(self, goal_handle: ServerGoalHandle):
+    def cancel_callback(self, goal_handle: ServerGoalHandle) -> CancelResponse.ACCEPT:
         """Callback function for handling cancel requests.
 
         Parameters
         ----------
         goal_handle: ServerGoalHandle
             Passes an instance of `ServerGoalHandle` as an argument.
+
+        Returns
+        -------
+        CancelResponse.ACCEPT
+            Always return an message saying that received cancel message.
         """
         self.get_logger().info('Received cancel request')
         return CancelResponse.ACCEPT
 
-    def execute_callback(self, goal_handle: ServerGoalHandle):
+    def execute_callback(self, goal_handle: ServerGoalHandle) -> TurtleTask.Result:
         """Callback function for processing accepted goals. This is called if when
         `ServerGoalHandle.execute()` is called for a goal handle that is being tracked by
         this action server.
@@ -194,6 +209,11 @@ class TurtlesimController(Node):
         ----------
         goal_handle: ServerGoalHandle
             Passes an instance of `ServerGoalHandle` as an argument.
+
+        Returns
+        -------
+        TurtleTask.Result
+            Result position after the system converges.
         """
         self.get_logger().info('Sending turtle...')
         self.goal.x = goal_handle.request.x
@@ -247,7 +267,7 @@ class TurtlesimController(Node):
         response.y = self.pose.y
         return response
 
-    def pose_callback(self, pose: Pose):
+    def pose_callback(self, pose: Pose) -> None:
         """Callback function executed whenever it receives a message from topic subscribed. that
         is, updates the robot's position.
 
@@ -258,15 +278,13 @@ class TurtlesimController(Node):
         """
         self.pose = pose
 
-    def linear_speed(self, distance):
+    def linear_speed(self, distance) -> float:
         """Compute the linear speed to be applied.
 
         Parameters
         ----------
         distance: float
             euclidean distance between current and target position.
-        kp: float
-            proportional gain.
 
         Returns
         -------
@@ -275,7 +293,7 @@ class TurtlesimController(Node):
         """
         return self.kp_linear * distance
 
-    def steering_angle(self):
+    def steering_angle(self) -> float:
         """Calculates the angle between the current position and the target position.
 
         Returns
@@ -288,13 +306,8 @@ class TurtlesimController(Node):
             self.goal.x - self.pose.x,
         )
 
-    def angular_speed(self):
+    def angular_speed(self) -> float:
         """Compute the angular speed to be applied.
-
-        Parameters
-        ----------
-        kp: float
-            proportional gain.
 
         Returns
         -------
@@ -304,7 +317,7 @@ class TurtlesimController(Node):
         return self.kp_angular * (self.steering_angle() - self.pose.theta)
 
     @staticmethod
-    def euclidean_distance(current: Pose, target: Pose):
+    def euclidean_distance(current: Pose, target: Pose) -> float:
         """Static method used to compute the euclidean distance between to Pose.
 
         Parameters
@@ -325,6 +338,8 @@ class TurtlesimController(Node):
 def main(*args, **kwargs):
     # init ROS2 client communications
     rclpy.init(*args, **kwargs)
+    # using MultiThreadExecutor to be able to process multiple callback, because the action is
+    # a long-running callback.
     executor = MultiThreadedExecutor()
     # creates a node
     node = TurtlesimController()
