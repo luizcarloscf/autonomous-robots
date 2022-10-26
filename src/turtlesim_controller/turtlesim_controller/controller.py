@@ -105,12 +105,12 @@ class TurtlesimController(Node):
             parameters=[
                 (
                     "kp_linear",
-                    1.5,
+                    2.0,
                     ParameterDescriptor(description="Proportional constant to linear speed"),
                 ),
                 (
                     "kp_angular",
-                    6.0,
+                    7.0,
                     ParameterDescriptor(description="Proportional constant to angular speed"),
                 ),
                 (
@@ -219,22 +219,23 @@ class TurtlesimController(Node):
         self.goal.x = goal_handle.request.x
         self.goal.y = goal_handle.request.y
 
-        distance = self.euclidean_distance(current=self.pose, target=self.goal)
+        current = self.pose
+        distance = self.euclidean_distance(current=current, target=self.goal)
         while distance >= self.delta:
 
             if not goal_handle.is_active:
                 self.get_logger().info('Goal aborted')
                 response = TurtleTask.Result()
-                response.x = self.pose.x
-                response.y = self.pose.y
+                response.x = current.x
+                response.y = current.y
                 return response
 
             if goal_handle.is_cancel_requested:
                 goal_handle.canceled()
                 self.get_logger().info('Goal canceled')
                 response = TurtleTask.Result()
-                response.x = self.pose.x
-                response.y = self.pose.y
+                response.x = current.x
+                response.y = current.y
                 return response
 
             msg = Twist()
@@ -245,7 +246,7 @@ class TurtlesimController(Node):
             # angular msg components
             msg.angular.x = 0.0
             msg.angular.y = 0.0
-            msg.angular.z = self.angular_speed()
+            msg.angular.z = self.angular_speed(current=current)
             # log current error
             self.get_logger().info('Error %.2f' % (distance))
             # send feedback
@@ -253,12 +254,16 @@ class TurtlesimController(Node):
             feedback_msg.x = self.pose.x
             feedback_msg.y = self.pose.y
             goal_handle.publish_feedback(feedback_msg)
-            # get distance
-            time.sleep(self.sleep)
             # send message
             self._publisher.publish(msg)
-            distance = self.euclidean_distance(current=self.pose, target=self.goal)
+            time.sleep(self.sleep)
+            # get distance
+            current = self.pose
+            distance = self.euclidean_distance(current=current, target=self.goal)
 
+        msg.linear.x = 0.0
+        msg.angular.z = 0.0
+        self._publisher.publish(msg)
         goal_handle.succeed()
         self.get_logger().info("Reached goal! :)")
 
@@ -291,10 +296,15 @@ class TurtlesimController(Node):
         float
             linear speed to be applied.
         """
-        return self.kp_linear * distance
+        return self.kp_linear * math.tanh(distance)
 
-    def steering_angle(self) -> float:
+    def steering_angle(self, current: Pose) -> float:
         """Calculates the angle between the current position and the target position.
+
+        Parameters
+        ----------
+        current: Pose
+            robot's current position.
 
         Returns
         -------
@@ -306,15 +316,25 @@ class TurtlesimController(Node):
             self.goal.x - self.pose.x,
         )
 
-    def angular_speed(self) -> float:
+    def angular_speed(self, current) -> float:
         """Compute the angular speed to be applied.
+
+        Parameters
+        ----------
+        current: Pose
+            robot's current position.
 
         Returns
         -------
         float
             angular speed to be applied.
         """
-        return self.kp_angular * (self.steering_angle() - self.pose.theta)
+        error = self.steering_angle(current=current) - current.theta
+        if error > math.pi:
+            error -= 2 * math.pi
+        if error < -math.pi:
+            error += 2 * math.pi
+        return self.kp_angular * (error)
 
     @staticmethod
     def euclidean_distance(current: Pose, target: Pose) -> float:
