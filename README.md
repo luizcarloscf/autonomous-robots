@@ -10,39 +10,23 @@
 
 Course offered in the electrical department at the [UFES](https://www.ufes.br/), by PhD Ricardo Carminati de Mello. This repository includes several ROS2 packages that were developed during the classes.
 
+### Packages
+
+During the lab classes, several packages were developed. Below there is a description of each one, for more details see the README.md specific to each package.
+
+* [turtlesim_controller](src/turtlesim_controller/): a simple end position controller;
+* [turtlesim_interfaces](src/turtlesim_interfaces/): interfaces to the [turtlesim_controller](src/turtlesim_controller/) packet;
+
 ### Building all packages
 
-If you have a ROS2 environment configured, it might be interesting to create a workspace and add this repository (among other intermediate steps). However, if you have docker installed on your machine and you can build and run the packages proposed here. To do so, just build the docker image:
+If you have a ROS2 environment configured, it might be interesting to create a workspace and add this repository (among other intermediate steps). However, if you have docker installed on your machine and you can build and run all the packages proposed here. To do so, just build the docker image with:
 
 ```bash
 docker build -f etc/docker/Dockerfile -t autonomous-robots .
 ```
-### Turtlesim Controller
 
-Using a simple proportional controller to move turtle. You can run the turtle simulation and its controller with:
-```bash
-docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw --rm autonomous-robots:latest ros2 launch launch/turtlesim_controller_launch.py
-```
+It is also available all packages already built in a docker image (with all dependencies as well) for you to just spin. Check the repository at dockerhub and choose the image tag you see fit, [luizcarloscf/autonomous-robots](https://hub.docker.com/r/luizcarloscf/autonomous-robots).
 
-Using an action client, you can send the turtle wherever you want with, e.g.:
-```bash
-docker run -it --rm autonomous-robots:latest ros2 run turtlesim_controller client -x 5 -y 8
-```
-
-The turtle controller exposes several configuration parameters, you can check them with:
-```bash
-docker run -it --rm autonomous-robots:latest ros2 param list
-```
-
-To modify the parameter:
-```bash
-docker run -it --rm autonomous-robots:latest ros2 param set /turtlesim_controller kp_angular 6
-```
-
-For more information about each configuration parameter, you can describe each one with:
-```bash
-docker run -it --rm autonomous-robots:latest ros2 param describe /turtlesim_controller kp_angular
-```
 
 ### Learning resources
 
