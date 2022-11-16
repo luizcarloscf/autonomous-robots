@@ -7,13 +7,11 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -y \
     python3-pip
 
-RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install setuptools==58.2.0
+ENV TURTLEBOT3_MODEL=waffle
+ENV GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/humble/share/turtlebot3_gazebo/models
 
 WORKDIR /opt/ros2_ws
 COPY src/ /opt/ros2_ws/src/
-COPY launch/ /opt/ros2_ws/launch/
-
 
 RUN source /opt/ros/humble/setup.bash && \
     colcon build
