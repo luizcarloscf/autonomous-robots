@@ -19,7 +19,7 @@ Where $k_{v}$ is a positive constant that represents the maximum linear speed an
 Below, its a recording of a working demonstration. Note that we just sent the turtle some random positions to go.
 
 <p align="center">
-    <img src="images/1.gif">
+    <img src="images/1.gif" />
 </p>
 <p align="center">
     <em>Demo</em>
