@@ -14,8 +14,8 @@ Course offered in the electrical department at the [UFES](https://www.ufes.br/),
 
 During the lab classes, several packages were developed. Below there is a description of each one, for more details see the README.md specific to each package.
 
-* [turtlesim_controller](src/turtlesim_controller/): a simple end position controller;
-* [turtlesim_interfaces](src/turtlesim_interfaces/): interfaces to the [turtlesim_controller](src/turtlesim_controller/) packet;
+* [turtlesim_controller](src/turtlesim_controller/): controller to move the turtle to a specified location;
+* [turtlesim_interfaces](src/turtlesim_interfaces/): interfaces to the [turtlesim_controller](src/turtlesim_controller/) package;
 
 ### Building all packages
 
