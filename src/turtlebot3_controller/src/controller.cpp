@@ -78,7 +78,7 @@ rclcpp_action::GoalResponse TurtlebotController::callback_goal(
     std::shared_ptr<const Task::Goal> goals) {
   RCLCPP_INFO(this->get_logger(), "Got goal request");
   (void)uuid;
-  if (goals->x.size() != goals->y.size()){
+  if (goals->x.size() != goals->y.size()) {
     return rclcpp_action::GoalResponse::REJECT;
   }
   for (long unsigned int i = 0; i < goals->x.size(); i++) {
@@ -118,8 +118,8 @@ void TurtlebotController::execute() {
     for (long unsigned int i = 0; i < goals->x.size(); i++) {
       current = this->odometry_;
       auto distance = this->euclidian_distance(current->pose.pose.position.x,
-                                              current->pose.pose.position.y,
-                                              goals->x[i], goals->y[i]);
+                                               current->pose.pose.position.y,
+                                               goals->x[i], goals->y[i]);
       while (distance > this->tolerance && rclcpp::ok()) {
         if (goal_handle->is_canceling()) {
           auto message = geometry_msgs::msg::Twist();
@@ -137,9 +137,9 @@ void TurtlebotController::execute() {
           return;
         }
         double theta = this->euler_from_quartertion(current);
-        double alpha =
-            this->steering_angle(current->pose.pose.position.x,
-                                current->pose.pose.position.y, goals->x[i], goals->y[i]);
+        double alpha = this->steering_angle(current->pose.pose.position.x,
+                                            current->pose.pose.position.y,
+                                            goals->x[i], goals->y[i]);
 
         double error = alpha - theta;
         if (error > M_PI)
@@ -170,7 +170,7 @@ void TurtlebotController::execute() {
                                             current->pose.pose.position.y,
                                             goals->x[i], goals->y[i]);
       }
-    } 
+    }
     this->queue_.pop();
     result->x = current->pose.pose.position.x;
     result->y = current->pose.pose.position.y;

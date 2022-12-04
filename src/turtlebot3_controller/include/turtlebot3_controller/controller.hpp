@@ -3,10 +3,10 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
-#include <vector>
 #include <memory>
 #include <queue>
 #include <thread>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
