@@ -75,13 +75,17 @@ rclcpp_action::CancelResponse TurtlebotController::callback_cancel(
 
 rclcpp_action::GoalResponse TurtlebotController::callback_goal(
     const rclcpp_action::GoalUUID& uuid,
-    std::shared_ptr<const Task::Goal> goal) {
-  RCLCPP_INFO(this->get_logger(), "Got goal request: x=%.2f e y=%.2f", goal->x,
-              goal->y);
+    std::shared_ptr<const Task::Goal> goals) {
+  RCLCPP_INFO(this->get_logger(), "Got goal request");
   (void)uuid;
-  if ((goal->x > 10.0) || (goal->y > 10.0) || (goal->x < -10.0) ||
-      (goal->y < -10.0) || (!this->odometry_init)) {
+  if (goals->x.size() != goals->y.size()){
     return rclcpp_action::GoalResponse::REJECT;
+  }
+  for (long unsigned int i = 0; i < goals->x.size(); i++) {
+    if ((goals->x[i] > 10.0) || (goals->y[i] > 10.0) || (goals->x[i] < -10.0) ||
+        (goals->y[i] < -10.0) || (!this->odometry_init)) {
+      return rclcpp_action::GoalResponse::REJECT;
+    }
   }
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
@@ -106,65 +110,67 @@ void TurtlebotController::execute() {
   auto goal_handle = this->queue_.front();
 
   while (!this->queue_.empty()) {
-    auto goal_handle = this->queue_.front();
-    rclcpp::Rate loop_rate(this->rate);
-
     RCLCPP_INFO(this->get_logger(), "Executing goal");
-    const auto goal = goal_handle->get_goal();
-    current = this->odometry_;
-    auto distance = this->euclidian_distance(current->pose.pose.position.x,
-                                             current->pose.pose.position.y,
-                                             goal->x, goal->y);
-    while (distance > this->tolerance && rclcpp::ok()) {
-      if (goal_handle->is_canceling()) {
+    rclcpp::Rate loop_rate(this->rate);
+    auto goal_handle = this->queue_.front();
+    const auto goals = goal_handle->get_goal();
+
+    for (long unsigned int i = 0; i < goals->x.size(); i++) {
+      current = this->odometry_;
+      auto distance = this->euclidian_distance(current->pose.pose.position.x,
+                                              current->pose.pose.position.y,
+                                              goals->x[i], goals->y[i]);
+      while (distance > this->tolerance && rclcpp::ok()) {
+        if (goal_handle->is_canceling()) {
+          auto message = geometry_msgs::msg::Twist();
+          message.linear.x = 0.0;
+          message.linear.y = 0.0;
+          message.linear.z = 0.0;
+          message.angular.x = 0.0;
+          message.angular.y = 0.0;
+          message.angular.z = 0.0;
+          this->publisher_twist_->publish(message);
+          result->x = current->pose.pose.position.x;
+          result->y = current->pose.pose.position.y;
+          goal_handle->canceled(result);
+          RCLCPP_INFO(this->get_logger(), "Goal Canceled");
+          return;
+        }
+        double theta = this->euler_from_quartertion(current);
+        double alpha =
+            this->steering_angle(current->pose.pose.position.x,
+                                current->pose.pose.position.y, goals->x[i], goals->y[i]);
+
+        double error = alpha - theta;
+        if (error > M_PI)
+          error -= 2 * M_PI;
+        if (error < -M_PI)
+          error += 2 * M_PI;
+
         auto message = geometry_msgs::msg::Twist();
-        message.linear.x = 0.0;
+        message.linear.x = this->linear_speed(distance);
         message.linear.y = 0.0;
         message.linear.z = 0.0;
+
         message.angular.x = 0.0;
         message.angular.y = 0.0;
-        message.angular.z = 0.0;
+        message.angular.z = this->angular_speed(error);
+
+        feedback->x = current->pose.pose.position.x;
+        feedback->y = current->pose.pose.position.y;
+
+        goal_handle->publish_feedback(feedback);
+        RCLCPP_INFO(this->get_logger(), "Publish Feedback");
+
         this->publisher_twist_->publish(message);
-        result->x = current->pose.pose.position.x;
-        result->y = current->pose.pose.position.y;
-        goal_handle->canceled(result);
-        RCLCPP_INFO(this->get_logger(), "Goal Canceled");
-        return;
+        loop_rate.sleep();
+
+        current = this->odometry_;
+        distance = this->euclidian_distance(current->pose.pose.position.x,
+                                            current->pose.pose.position.y,
+                                            goals->x[i], goals->y[i]);
       }
-      double theta = this->euler_from_quartertion(current);
-      double alpha =
-          this->steering_angle(current->pose.pose.position.x,
-                               current->pose.pose.position.y, goal->x, goal->y);
-
-      double error = alpha - theta;
-      if (error > M_PI)
-        error -= 2 * M_PI;
-      if (error < -M_PI)
-        error += 2 * M_PI;
-
-      auto message = geometry_msgs::msg::Twist();
-      message.linear.x = this->linear_speed(distance);
-      message.linear.y = 0.0;
-      message.linear.z = 0.0;
-
-      message.angular.x = 0.0;
-      message.angular.y = 0.0;
-      message.angular.z = this->angular_speed(error);
-
-      feedback->x = current->pose.pose.position.x;
-      feedback->y = current->pose.pose.position.y;
-
-      goal_handle->publish_feedback(feedback);
-      RCLCPP_INFO(this->get_logger(), "Publish Feedback");
-
-      this->publisher_twist_->publish(message);
-      loop_rate.sleep();
-
-      current = this->odometry_;
-      distance = this->euclidian_distance(current->pose.pose.position.x,
-                                          current->pose.pose.position.y,
-                                          goal->x, goal->y);
-    }
+    } 
     this->queue_.pop();
     result->x = current->pose.pose.position.x;
     result->y = current->pose.pose.position.y;

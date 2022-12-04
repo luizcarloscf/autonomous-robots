@@ -1,6 +1,6 @@
 # Goal point
-float32 x
-float32 y
+float32[] x
+float32[] y
 ---
 # Final result after the system converges
 float32 x

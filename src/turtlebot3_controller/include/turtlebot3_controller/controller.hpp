@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
+#include <vector>
 #include <memory>
 #include <queue>
 #include <thread>
@@ -86,7 +87,7 @@ class TurtlebotController : public rclcpp::Node {
    */
   rclcpp_action::GoalResponse callback_goal(
       const rclcpp_action::GoalUUID& uuid,
-      std::shared_ptr<const Task::Goal> goal);
+      std::shared_ptr<const Task::Goal> goals);
 
   /**
    * @brief Callback used to accept goal messages.
