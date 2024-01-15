@@ -20,7 +20,7 @@ ENV TURTLEBOT3_MODEL=waffle
 ENV GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/opt/ros/humble/share/turtlebot3_gazebo/models
 
 WORKDIR /opt/ros2_ws
-COPY src/ /opt/ros2_ws/src/
+COPY . /opt/ros2_ws/src/
 
 RUN source /opt/ros/humble/setup.bash && \
     rosdep install -i --from-path src --rosdistro humble -y && \
