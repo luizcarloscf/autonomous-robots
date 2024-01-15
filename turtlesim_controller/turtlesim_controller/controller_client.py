@@ -15,39 +15,32 @@
 import argparse
 
 import rclpy
-from rclpy.node import Node
-from rclpy.task import Future
+from action_msgs.msg import GoalStatus
 from rclpy.action import ActionClient
 from rclpy.executors import ExternalShutdownException
-
-from action_msgs.msg import GoalStatus
+from rclpy.node import Node
+from rclpy.task import Future
 
 from turtlesim_interfaces.action import TurtleTask
 
 
 class TurtleTaskActionClient(Node):
-    """TurtlesimActionClient is a node is ROS2 responsible for desired target positiom to
-    TurtlesimController node.
-    """
-
     def __init__(self, node_name="turtletask_action_client") -> None:
-        """Constructs all the necessary attributes for the TurtleTaskActionClient object.
+        """
+        Initialize the TurtleTaskActionClient object.
 
-        Parameters
-        ----------
-            node_name: str = 'turtletask_action_client'
-                ROS2 node name.
+        :param node_name: str, optional
+            ROS2 node name. Default is 'turtletask_action_client'.
         """
         super().__init__(node_name=node_name)
         self._action_client = ActionClient(self, TurtleTask, 'turtletask')
 
     def goal_response_callback(self, future: Future) -> None:
-        """Callback function for handling responses from action server.
+        """
+        Handle responses from the action server.
 
-        Parameters
-        ----------
-        future: rclpy.task.Future
-            Represent the outcome of a task in the future.
+        :param future: rclpy.task.Future
+            Represents the outcome of a task in the future.
         """
         goal_handle = future.result()
         if not goal_handle.accepted:
@@ -58,13 +51,11 @@ class TurtleTaskActionClient(Node):
             self._get_result_future.add_done_callback(self.get_result_callback)
 
     def feedback_callback(self, feedback: TurtleTask.Feedback) -> None:
-        """Callback function for handling feedback messages from action server. Just logging
-        current position.
+        """
+        Handle feedback messages from the action server.
 
-        Parameters
-        ----------
-        feedback: TurtleTask_FeedbackMessage
-            Represent the outcome of a task in the future.
+        :param feedback: TurtleTask.Feedback
+            Represents the current outcome of a task.
         """
         self.get_logger().info(
             'Received feedback: %.2f, %.2f' % (
@@ -74,15 +65,14 @@ class TurtleTaskActionClient(Node):
         )
 
     def get_result_callback(self, future: Future) -> None:
-        """Callback function for handling results messages from action server. It shutdowns
-        node after goal succeeded or not.
-
-        Parameters
-        ----------
-        future: rclpy.task.Future
-            Represent the outcome of a task in the future.
         """
+        Handle result messages from the action server.
 
+        Shut down the node after the goal succeeded or not.
+
+        :param future: rclpy.task.Future
+            Represents the outcome of a task in the future.
+        """
         result = future.result().result
         status = future.result().status
         if status == GoalStatus.STATUS_SUCCEEDED:
@@ -98,13 +88,12 @@ class TurtleTaskActionClient(Node):
         rclpy.shutdown()
 
     def send_goal(self, x: float, y: float) -> None:
-        """Function to fire message to an action server and handle its responses.
+        """
+        Send a message to an action server and handle its responses.
 
-        Parameters
-        ----------
-        x: float
+        :param x: float
             Goal position in x-axis.
-        y: float
+        :param y: float
             Goal position in y-axis.
         """
         self.get_logger().info('Waiting for action server...')
