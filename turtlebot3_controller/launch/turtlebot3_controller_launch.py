@@ -14,17 +14,18 @@
 
 import os
 
-from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-
-from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    launch_file_dir = os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'launch')
+    launch_file_dir = os.path.join(
+        get_package_share_directory('turtlebot3_gazebo'), 'launch'
+    )
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     x_pose = LaunchConfiguration('x_pose', default='0.0')
     y_pose = LaunchConfiguration('y_pose', default='0.0')
@@ -44,18 +45,10 @@ def generate_launch_description():
         executable='controller',
         name='turtlebot_controller',
         parameters=[
-            {
-                "kp_linear": 0.5
-            },
-            {
-                "kp_angular": 1.0
-            },
-            {
-                "tolerance": 0.1
-            },
-            {
-                "rate": 20.0
-            },
+            {'kp_linear': 0.5},
+            {'kp_angular': 1.0},
+            {'tolerance': 0.1},
+            {'rate': 20.0},
         ],
     )
     ld = LaunchDescription()
