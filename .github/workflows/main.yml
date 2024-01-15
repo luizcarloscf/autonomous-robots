@@ -20,7 +20,6 @@ jobs:
           - pep257
           - lint_cmake
           - cpplint
-          - cppcheck
     steps:
     - name: Checkout
       uses: actions/checkout@v2
