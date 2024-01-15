@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from launch import LaunchDescription
+
 from launch_ros.actions import Node
 
 
@@ -30,9 +31,9 @@ def generate_launch_description():
             executable='controller',
             name='turtlesim_controller',
             parameters=[
-                {"kp_linear": 2.0},
-                {"kp_angular": 7.0},
-                {"tolerance": 0.1},
+                {'kp_linear': 2.0},
+                {'kp_angular': 7.0},
+                {'tolerance': 0.1},
             ]
         ),
     ])

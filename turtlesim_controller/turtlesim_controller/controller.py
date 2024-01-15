@@ -13,68 +13,62 @@
 # limitations under the License.
 
 import math
-import time
 import threading
-
+import time
 from typing import List
 
+from geometry_msgs.msg import Twist
+
+from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
+
 import rclpy
-from rclpy.node import Node
-from rclpy.parameter import Parameter
+from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.action.server import ServerGoalHandle
 from rclpy.callback_groups import ReentrantCallbackGroup
-from rclpy.action import ActionServer, CancelResponse, GoalResponse
-from rclpy.executors import MultiThreadedExecutor, ExternalShutdownException
+from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
+from rclpy.node import Node
+from rclpy.parameter import Parameter
 
 from turtlesim.msg import Pose
-from geometry_msgs.msg import Twist
-from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
 
 from turtlesim_interfaces.action import TurtleTask
 
 
 class TurtlesimController(Node):
-    """TurtlesimController is a node is ROS2 responsible for sending linear and angular velocity
-    parameters to the turtle simulation node.
-    """
 
     def parameter_callback(self, parameters: List[Parameter]) -> SetParametersResult:
-        """Callback function executed whenever it receives a message to handle parameters.
+        """
+        Handle parameter updates.
 
-        Parameters
-        ----------
-        params: List[Parameter]
+        :param parameters: List[Parameter]
             Message with new parameters to update.
 
-        Returns
-        ------- 
-        SetParametersResult
-            Message with the result after executed parameter callback.
+        :return: SetParametersResult
+            Message with the result after executing the parameter callback.
         """
         for param in parameters:
             if param.name == 'kp_angular':
                 self.kp_angular = param.value
-                self.get_logger().info("Updated parameter kp_angular=%.2f" % self.kp_angular)
-            elif param.name == "kp_linear":
+                self.get_logger().info('Updated parameter kp_angular=%.2f' % self.kp_angular)
+            elif param.name == 'kp_linear':
                 self.kp_linear = param.value
-                self.get_logger().info("Updated parameter kp_linear=%.2f" % self.kp_linear)
-            elif param.name == "tolerance":
+                self.get_logger().info('Updated parameter kp_linear=%.2f' % self.kp_linear)
+            elif param.name == 'tolerance':
                 self.delta = param.value
-                self.get_logger().info("Updated parameter tolerance=%.2f" % self.delta)
-            elif param.name == "sleep":
+                self.get_logger().info('Updated parameter tolerance=%.2f' % self.delta)
+            elif param.name == 'sleep':
                 self.sleep = param.value
-                self.get_logger().info("Updated parameter sleep=%.2f" % self.sleep)
+                self.get_logger().info('Updated parameter sleep=%.2f' % self.sleep)
             else:
                 return SetParametersResult(successful=False)
         return SetParametersResult(successful=True)
 
     def __init__(self, node_name: str = 'turtlesim_controller') -> None:
-        """Constructs all the necessary attributes for the TurtlesimController object.
+        """
+        Construct the TurtlesimController object.
 
-        Parameters
-        ----------
-            node_name: str = 'turtlesim_controller'
-                ROS2 node name.
+        :param node_name: str, optional
+            ROS2 node name. Default is 'turtlesim_controller'.
         """
         # initialize the node
         super(TurtlesimController,
@@ -90,14 +84,14 @@ class TurtlesimController(Node):
         # publisher to send commands to turtlesim_node
         self._publisher = self.create_publisher(
             msg_type=Twist,
-            topic="/turtle1/cmd_vel",
+            topic='/turtle1/cmd_vel',
             qos_profile=10,
             callback_group=callback_group,
         )
         # subscribe to receive pose from turtlesim_node
         self._subscriber = self.create_subscription(
             msg_type=Pose,
-            topic="/turtle1/pose",
+            topic='/turtle1/pose',
             callback=self.pose_callback,
             qos_profile=10,
             callback_group=callback_group,
@@ -115,78 +109,73 @@ class TurtlesimController(Node):
         )
         # parameters
         self.declare_parameters(
-            namespace="",
+            namespace='',
             parameters=[
                 (
-                    "kp_linear",
+                    'kp_linear',
                     2.0,
-                    ParameterDescriptor(description="Proportional constant to linear speed"),
+                    ParameterDescriptor(description='Proportional constant to linear speed'),
                 ),
                 (
-                    "kp_angular",
+                    'kp_angular',
                     7.0,
-                    ParameterDescriptor(description="Proportional constant to angular speed"),
+                    ParameterDescriptor(description='Proportional constant to angular speed'),
                 ),
                 (
-                    "tolerance",
+                    'tolerance',
                     0.1,
-                    ParameterDescriptor(description="Acceptable final error"),
+                    ParameterDescriptor(description='Acceptable final error'),
                 ),
                 (
-                    "x_initial",
+                    'x_initial',
                     5.0,
-                    ParameterDescriptor(description="x-axis initial position"),
+                    ParameterDescriptor(description='x-axis initial position'),
                 ),
                 (
-                    "y_initial",
+                    'y_initial',
                     5.0,
-                    ParameterDescriptor(description="y-axis initial position"),
+                    ParameterDescriptor(description='y-axis initial position'),
                 ),
                 (
-                    "sleep",
+                    'sleep',
                     0.01,
-                    ParameterDescriptor(description="amount of time (s) sleep in action server"),
+                    ParameterDescriptor(description='amount of time (s) sleep in action server'),
                 ),
             ],
         )
-        self.kp_linear = float(self.get_parameter("kp_linear").value)
-        self.kp_angular = float(self.get_parameter("kp_angular").value)
-        self.delta = float(self.get_parameter("tolerance").value)
-        self.sleep = float(self.get_parameter("sleep").value)
+        self.kp_linear = float(self.get_parameter('kp_linear').value)
+        self.kp_angular = float(self.get_parameter('kp_angular').value)
+        self.delta = float(self.get_parameter('tolerance').value)
+        self.sleep = float(self.get_parameter('sleep').value)
         self.goal = Pose()
-        self.goal.x = float(self.get_parameter("x_initial").value)
-        self.goal.y = float(self.get_parameter("y_initial").value)
+        self.goal.x = float(self.get_parameter('x_initial').value)
+        self.goal.y = float(self.get_parameter('y_initial').value)
         self.add_on_set_parameters_callback(self.parameter_callback)
-        self.get_logger().info("Init turtlesim_controller")
+        self.get_logger().info('Init turtlesim_controller')
 
     def destroy(self) -> None:
-        """Helper function to terminate action server and node.
-        """
+        """Terminate the action server and node."""
         self._action_server.destroy()
         super(TurtlesimController, self).destroy_node()
 
     def goal_callback(self, goal_request: TurtleTask.Goal):
-        """Callback function for handling new goal requests.
+        """
+        Handle new goal requests.
 
-        Parameters
-        ----------
-        params: TurtleTask.Goal
+        :param goal_request: TurtleTask.Goal
             Message with new goal request.
 
-        Returns
-        -------
-        GoalResponse.ACCEPT
-            Always returns accept if received action goal request.
+        :return: GoalResponse.ACCEPT
+            Always returns accept if received an action goal request.
         """
-        self.get_logger().info("Received goal request")
+        self.get_logger().info('Received goal request')
         return GoalResponse.ACCEPT
 
     def handle_accepted_callback(self, goal_handle: ServerGoalHandle) -> None:
-        """Callback function for handling newly accepted goals.
+        """
+        Handle newly accepted goals.
 
-        Parameters
-        ----------
-        goal_handle: ServerGoalHandle
+        :param goal_handle: ServerGoalHandle
             Passes an instance of `ServerGoalHandle` as an argument.
         """
         with self._goal_lock:
@@ -199,34 +188,26 @@ class TurtlesimController(Node):
         goal_handle.execute()
 
     def cancel_callback(self, goal_handle: ServerGoalHandle) -> CancelResponse.ACCEPT:
-        """Callback function for handling cancel requests.
+        """
+        Handle cancel requests.
 
-        Parameters
-        ----------
-        goal_handle: ServerGoalHandle
+        :param goal_handle: ServerGoalHandle
             Passes an instance of `ServerGoalHandle` as an argument.
 
-        Returns
-        -------
-        CancelResponse.ACCEPT
-            Always return an message saying that received cancel message.
+        :return: CancelResponse.ACCEPT
+            Always returns a message saying that it received a cancel message.
         """
         self.get_logger().info('Received cancel request')
         return CancelResponse.ACCEPT
 
     def execute_callback(self, goal_handle: ServerGoalHandle) -> TurtleTask.Result:
-        """Callback function for processing accepted goals. This is called if when
-        `ServerGoalHandle.execute()` is called for a goal handle that is being tracked by
-        this action server.
+        """
+        Process accepted goals.
 
-        Parameters
-        ----------
-        goal_handle: ServerGoalHandle
+        :param goal_handle: ServerGoalHandle
             Passes an instance of `ServerGoalHandle` as an argument.
 
-        Returns
-        -------
-        TurtleTask.Result
+        :return: TurtleTask.Result
             Result position after the system converges.
         """
         self.get_logger().info('Sending turtle...')
@@ -279,7 +260,7 @@ class TurtlesimController(Node):
         msg.angular.z = 0.0
         self._publisher.publish(msg)
         goal_handle.succeed()
-        self.get_logger().info("Reached goal! :)")
+        self.get_logger().info('Reached goal! :)')
 
         response = TurtleTask.Result()
         response.x = self.pose.x
@@ -287,43 +268,35 @@ class TurtlesimController(Node):
         return response
 
     def pose_callback(self, pose: Pose) -> None:
-        """Callback function executed whenever it receives a message from topic subscribed. that
-        is, updates the robot's position.
+        """
+        Update the robot's position (callback function).
 
-        Parameters
-        ----------
-        pose: Pose
-            current robot's position.
+        :param pose: Pose
+            Current robot's position.
         """
         self.pose = pose
 
     def linear_speed(self, distance) -> float:
-        """Compute the linear speed to be applied.
+        """
+        Compute the linear speed to be applied.
 
-        Parameters
-        ----------
-        distance: float
-            euclidean distance between current and target position.
+        :param distance: float
+            Euclidean distance between current and target position.
 
-        Returns
-        -------
-        float
-            linear speed to be applied.
+        :return: float
+            Linear speed to be applied.
         """
         return self.kp_linear * math.tanh(distance)
 
     def steering_angle(self, current: Pose) -> float:
-        """Calculates the angle between the current position and the target position.
+        """
+        Calculate the angle between the current position and the target position.
 
-        Parameters
-        ----------
-        current: Pose
-            robot's current position.
+        :param current: Pose
+            Robot's current position.
 
-        Returns
-        -------
-        float
-            returns the angle between current position and the target position measured in radians.
+        :return: float
+            Angle between the current position and the target position measured in radians.
         """
         return math.atan2(
             self.goal.y - self.pose.y,
@@ -331,17 +304,14 @@ class TurtlesimController(Node):
         )
 
     def angular_speed(self, current) -> float:
-        """Compute the angular speed to be applied.
+        """
+        Compute the angular speed to be applied.
 
-        Parameters
-        ----------
-        current: Pose
-            robot's current position.
+        :param current: Pose
+            Robot's current position.
 
-        Returns
-        -------
-        float
-            angular speed to be applied.
+        :return: float
+            Angular speed to be applied.
         """
         error = self.steering_angle(current=current) - current.theta
         if error > math.pi:
@@ -352,19 +322,16 @@ class TurtlesimController(Node):
 
     @staticmethod
     def euclidean_distance(current: Pose, target: Pose) -> float:
-        """Static method used to compute the euclidean distance between to Pose.
+        """
+        Compute the Euclidean distance between two Pose instances.
 
-        Parameters
-        ----------
-        current: Pose
-            robot's current position.
-        target: Pose
-            robot's target position.
+        :param current: Pose
+            Robot's current position.
+        :param target: Pose
+            Robot's target position.
 
-        Returns
-        -------
-        float
-            distance between the two positions.
+        :return: float
+            Distance between the two positions.
         """
         return math.sqrt((target.x - current.x)**2 + (target.y - current.y)**2)
 
@@ -387,5 +354,5 @@ def main(*args, **kwargs):
         rclpy.try_shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

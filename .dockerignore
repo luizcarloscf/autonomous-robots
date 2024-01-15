@@ -75,6 +75,7 @@ install
 log
 
 # project
+**/.github
 *.md
 .flake8
 .style.yapf
