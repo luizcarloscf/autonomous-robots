@@ -43,8 +43,9 @@ using GoalHandleTask = rclcpp_action::ServerGoalHandle<Task>;
  * It evaluates the current position through robot odometry and sends
  * angular/linear velocity commands to the robot to reach the target position.
  */
-class TurtlebotController : public rclcpp::Node {
- public:
+class TurtlebotController : public rclcpp::Node
+{
+public:
   /**
    * @brief Construct a new Turtlebot Controller object
    *
@@ -53,7 +54,7 @@ class TurtlebotController : public rclcpp::Node {
    */
   TurtlebotController();
 
- private:
+private:
   double kp_angular, kp_linear, tolerance, rate;
   bool odometry_init = false;
 
@@ -72,7 +73,7 @@ class TurtlebotController : public rclcpp::Node {
    * @return rcl_interfaces::msg::SetParametersResult
    */
   rcl_interfaces::msg::SetParametersResult parameters_callback(
-      const std::vector<rclcpp::Parameter>& parameters);
+    const std::vector<rclcpp::Parameter> & parameters);
 
   /**
    * @brief Callback executed whenever a message arrives on topic /odom
@@ -88,7 +89,7 @@ class TurtlebotController : public rclcpp::Node {
    * @return rclcpp_action::CancelResponse
    */
   rclcpp_action::CancelResponse callback_cancel(
-      const std::shared_ptr<GoalHandleTask> goal_handle);
+    const std::shared_ptr<GoalHandleTask> goal_handle);
 
   /**
    * @brief Callback used to receive goal and evaluates if it is an valid goal.
@@ -98,8 +99,8 @@ class TurtlebotController : public rclcpp::Node {
    * @return rclcpp_action::GoalResponse
    */
   rclcpp_action::GoalResponse callback_goal(
-      const rclcpp_action::GoalUUID& uuid,
-      std::shared_ptr<const Task::Goal> goals);
+    const rclcpp_action::GoalUUID & uuid,
+    std::shared_ptr<const Task::Goal> goals);
 
   /**
    * @brief Callback used to accept goal messages.
