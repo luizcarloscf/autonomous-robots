@@ -95,7 +95,7 @@ rclcpp_action::GoalResponse TurtlebotController::callback_goal(
   if (goals->x.size() != goals->y.size()) {
     return rclcpp_action::GoalResponse::REJECT;
   }
-  for (long unsigned int i = 0; i < goals->x.size(); i++) {
+  for (std::size_t i = 0; i < goals->x.size(); i++) {
     if ((goals->x[i] > 10.0) || (goals->y[i] > 10.0) || (goals->x[i] < -10.0) ||
         (goals->y[i] < -10.0) || (!this->odometry_init)) {
       return rclcpp_action::GoalResponse::REJECT;
@@ -129,7 +129,7 @@ void TurtlebotController::execute() {
     auto goal_handle = this->queue_.front();
     const auto goals = goal_handle->get_goal();
 
-    for (long unsigned int i = 0; i < goals->x.size(); i++) {
+    for (std::size_t i = 0; i < goals->x.size(); i++) {
       current = this->odometry_;
       auto distance = this->euclidian_distance(current->pose.pose.position.x,
                                                current->pose.pose.position.y,
