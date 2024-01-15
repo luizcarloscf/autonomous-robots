@@ -14,10 +14,11 @@
 
 import argparse
 
+import rclpy
+
 from action_msgs.msg import GoalStatus
 from turtlesim_interfaces.action import TurtleTask
 
-import rclpy
 from rclpy.action import ActionClient
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -26,7 +27,7 @@ from rclpy.task import Future
 
 class TurtleTaskActionClient(Node):
 
-    def __init__(self, node_name: str= 'turtletask_action_client') -> None:
+    def __init__(self, node_name: str = 'turtletask_action_client') -> None:
         """
         Initialize the TurtleTaskActionClient object.
 

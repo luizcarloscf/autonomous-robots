@@ -17,11 +17,12 @@ import threading
 import time
 from typing import List
 
+import rclpy
+
 from geometry_msgs.msg import Twist
 from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
 from turtlesim.msg import Pose
 
-import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.action.server import ServerGoalHandle
 from rclpy.callback_groups import ReentrantCallbackGroup
@@ -107,7 +108,7 @@ class TurtlesimController(Node):
         )
         # parameters
         self.declare_parameters(
-            namespace="",
+            namespace='',
             parameters=[
                 (
                     'kp_linear',
