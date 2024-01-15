@@ -17,21 +17,23 @@ import threading
 import time
 from typing import List
 
-import rclpy
 from geometry_msgs.msg import Twist
 from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
+from turtlesim.msg import Pose
+
+import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.action.server import ServerGoalHandle
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import ExternalShutdownException, MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.parameter import Parameter
-from turtlesim.msg import Pose
 
 from turtlesim_interfaces.action import TurtleTask
 
 
 class TurtlesimController(Node):
+
     def parameter_callback(self, parameters: List[Parameter]) -> SetParametersResult:
         """
         Handle parameter updates.
@@ -45,16 +47,16 @@ class TurtlesimController(Node):
         for param in parameters:
             if param.name == 'kp_angular':
                 self.kp_angular = param.value
-                self.get_logger().info("Updated parameter kp_angular=%.2f" % self.kp_angular)
-            elif param.name == "kp_linear":
+                self.get_logger().info('Updated parameter kp_angular=%.2f' % self.kp_angular)
+            elif param.name == 'kp_linear':
                 self.kp_linear = param.value
-                self.get_logger().info("Updated parameter kp_linear=%.2f" % self.kp_linear)
-            elif param.name == "tolerance":
+                self.get_logger().info('Updated parameter kp_linear=%.2f' % self.kp_linear)
+            elif param.name == 'tolerance':
                 self.delta = param.value
-                self.get_logger().info("Updated parameter tolerance=%.2f" % self.delta)
-            elif param.name == "sleep":
+                self.get_logger().info('Updated parameter tolerance=%.2f' % self.delta)
+            elif param.name == 'sleep':
                 self.sleep = param.value
-                self.get_logger().info("Updated parameter sleep=%.2f" % self.sleep)
+                self.get_logger().info('Updated parameter sleep=%.2f' % self.sleep)
             else:
                 return SetParametersResult(successful=False)
         return SetParametersResult(successful=True)
@@ -80,14 +82,14 @@ class TurtlesimController(Node):
         # publisher to send commands to turtlesim_node
         self._publisher = self.create_publisher(
             msg_type=Twist,
-            topic="/turtle1/cmd_vel",
+            topic='/turtle1/cmd_vel',
             qos_profile=10,
             callback_group=callback_group,
         )
         # subscribe to receive pose from turtlesim_node
         self._subscriber = self.create_subscription(
             msg_type=Pose,
-            topic="/turtle1/pose",
+            topic='/turtle1/pose',
             callback=self.pose_callback,
             qos_profile=10,
             callback_group=callback_group,
@@ -108,46 +110,46 @@ class TurtlesimController(Node):
             namespace="",
             parameters=[
                 (
-                    "kp_linear",
+                    'kp_linear',
                     2.0,
-                    ParameterDescriptor(description="Proportional constant to linear speed"),
+                    ParameterDescriptor(description='Proportional constant to linear speed'),
                 ),
                 (
-                    "kp_angular",
+                    'kp_angular',
                     7.0,
-                    ParameterDescriptor(description="Proportional constant to angular speed"),
+                    ParameterDescriptor(description='Proportional constant to angular speed'),
                 ),
                 (
-                    "tolerance",
+                    'tolerance',
                     0.1,
-                    ParameterDescriptor(description="Acceptable final error"),
+                    ParameterDescriptor(description='Acceptable final error'),
                 ),
                 (
-                    "x_initial",
+                    'x_initial',
                     5.0,
-                    ParameterDescriptor(description="x-axis initial position"),
+                    ParameterDescriptor(description='x-axis initial position'),
                 ),
                 (
-                    "y_initial",
+                    'y_initial',
                     5.0,
-                    ParameterDescriptor(description="y-axis initial position"),
+                    ParameterDescriptor(description='y-axis initial position'),
                 ),
                 (
-                    "sleep",
+                    'sleep',
                     0.01,
-                    ParameterDescriptor(description="amount of time (s) sleep in action server"),
+                    ParameterDescriptor(description='amount of time (s) sleep in action server'),
                 ),
             ],
         )
-        self.kp_linear = float(self.get_parameter("kp_linear").value)
-        self.kp_angular = float(self.get_parameter("kp_angular").value)
-        self.delta = float(self.get_parameter("tolerance").value)
-        self.sleep = float(self.get_parameter("sleep").value)
+        self.kp_linear = float(self.get_parameter('kp_linear').value)
+        self.kp_angular = float(self.get_parameter('kp_angular').value)
+        self.delta = float(self.get_parameter('tolerance').value)
+        self.sleep = float(self.get_parameter('sleep').value)
         self.goal = Pose()
-        self.goal.x = float(self.get_parameter("x_initial").value)
-        self.goal.y = float(self.get_parameter("y_initial").value)
+        self.goal.x = float(self.get_parameter('x_initial').value)
+        self.goal.y = float(self.get_parameter('y_initial').value)
         self.add_on_set_parameters_callback(self.parameter_callback)
-        self.get_logger().info("Init turtlesim_controller")
+        self.get_logger().info('Init turtlesim_controller')
 
     def destroy(self) -> None:
         """Terminate the action server and node."""
@@ -164,7 +166,7 @@ class TurtlesimController(Node):
         :return: GoalResponse.ACCEPT
             Always returns accept if received an action goal request.
         """
-        self.get_logger().info("Received goal request")
+        self.get_logger().info('Received goal request')
         return GoalResponse.ACCEPT
 
     def handle_accepted_callback(self, goal_handle: ServerGoalHandle) -> None:
@@ -256,7 +258,7 @@ class TurtlesimController(Node):
         msg.angular.z = 0.0
         self._publisher.publish(msg)
         goal_handle.succeed()
-        self.get_logger().info("Reached goal! :)")
+        self.get_logger().info('Reached goal! :)')
 
         response = TurtleTask.Result()
         response.x = self.pose.x
@@ -350,5 +352,5 @@ def main(*args, **kwargs):
         rclpy.try_shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
