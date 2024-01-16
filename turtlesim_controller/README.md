@@ -52,6 +52,22 @@ source install/setup.bash
 ros2 action send_goal /turtletask turtlesim_interfaces/action/TurtleTask "{x: 1.0, y: 10.0}"
 ```
 
+The turtle controller exposes several configuration [parameters], you can check them with:
+
+```bash
+os2 param list
+```
+
+To modify the parameter:
+```bash
+ros2 param set /turtlesim_controller kp_angular 6
+```
+
+For more information about each configuration parameter, you can describe each one with:
+```bash
+ros2 param describe /turtlesim_controller kp_angular
+```
+
 ### Running with [Docker]
 
 You can run the turtle simulation and its controller with [Docker] and a [launch script](launch/turtlesim_controller_launch.py):
@@ -64,22 +80,6 @@ This program will run the turtle simulation and also run its controller. Using a
 
 ```bash
 docker run -it --rm luizcarloscf/autonomous-robots:main ros2 run turtlesim_controller client -x 5 -y 8
-```
-
-The turtle controller exposes several configuration [parameters], you can check them with:
-
-```bash
-docker run -it --rm luizcarloscf/autonomous-robots:main ros2 param list
-```
-
-To modify the parameter:
-```bash
-docker run -it --rm luizcarloscf/autonomous-robots:main ros2 param set /turtlesim_controller kp_angular 6
-```
-
-For more information about each configuration parameter, you can describe each one with:
-```bash
-docker run -it --rm luizcarloscf/autonomous-robots:main ros2 param describe /turtlesim_controller kp_angular
 ```
 
 [Turtlesim]: https://index.ros.org/p/turtlesim/github-ros-ros_tutorials/
