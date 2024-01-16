@@ -1,6 +1,6 @@
 ## Turtlebot3 Controller
 
-Position controller to move the [turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3) to a specified location.
+Position controller to move the [turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3).
 
 ### About
 
@@ -12,7 +12,7 @@ Where $p$ is the Euclidean distance to the desired point, $\Psi$ is the robot or
 
 $$ \begin{pmatrix}v \\\ \omega \end{pmatrix} = \begin{pmatrix} k_{v}\tanh(p) \\\ k_{\omega}\alpha \end{pmatrix} $$
 
-Where $k_{v}$ is a positive constant that represents the maximum linear speed and $k_{\omega}$ is a positive constant that represents the maximum angular speed. So, we developed an [action server](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Actions/Understanding-ROS2-Actions.html) following these mathematical formulations. The task of moving the turtlebot3 until reaching a final goal is a long running task and actions are the proper way of handling such situations in ROS. You can view the source code of the action server at [turtlesim_controller/controller.py](src/controller.cpp).
+Where $k_{v}$ is a positive constant that represents the maximum linear speed and $k_{\omega}$ is a positive constant that represents the maximum angular speed. So, we developed an [action server](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Actions/Understanding-ROS2-Actions.html) following these mathematical formulations. The task of moving the turtlebot3 until reaching a final goal is a long running task and actions are the proper way of handling such situations in ROS. You can view the source code of the action server at [src/controller.cpp](src/controller.cpp).
 
 ### Demo
 
@@ -25,12 +25,11 @@ Next, it's a recording of a working demonstration. Note that we just sent the tu
     <em>Demo</em>
 </p>
 
-### Building and runinng with ROS2
+### Building and runinng
 
-This repository is organized as a ROS2 workspace, so just clone it:
+Just clone this project in your ROS2 workspace:
 ```bash
 git clone https://github.com/luizcarloscf/autonomous-robots.git
-cd autonomous-robots/
 ```
 
 Then, build this package with:
@@ -51,7 +50,7 @@ source install/setup.bash
 ros2 action send_goal /task turtlebot3_controller/action/Task "{x: [1.0,2.0,-1.0], y: [1.0,2.0,-1.0]}"
 ```
 
-#### Running RO2 with [Docker](https://www.docker.com/)
+#### Running with [Docker](https://www.docker.com/)
 
 Not really safe, but it works.
 ```bash
