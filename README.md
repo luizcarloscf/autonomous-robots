@@ -23,8 +23,17 @@ Throughout the laboratory classes, we developed some packages. Check out brief d
 
 ### Building all packages
 
-If you have a ROS2 environment configured, it might be interesting to create a workspace and add this repository (among other intermediate steps). However, if you have [Docker] installed on your machine and you can build and run all the packages. To do so, just build the docker image with:
+If you have a ROS2 environment configured,
+```bash
+cd ~/ros_ws/src
+git clone https://github.com/luizcarloscf/autonomous-robots.git
+cd ~/ros_ws
+rosdep install -i --from-path src --rosdistro humble -y
+colcon build
+source install/setup.bash
+```
 
+However, if you have [Docker] installed on your machine and you can use it to build all packages. To do so, just build the docker image with:
 ```bash
 git clone https://github.com/luizcarloscf/autonomous-robots.git
 cd autonomous-robots/

@@ -29,7 +29,9 @@ Next, it's a recording of a working demonstration. Note that we just sent the tu
 
 Just clone this project in your ROS2 workspace:
 ```bash
+cd ~/ros_ws/src
 git clone https://github.com/luizcarloscf/autonomous-robots.git
+cd ~/ros_ws
 ```
 
 Then, build this package with:

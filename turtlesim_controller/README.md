@@ -31,13 +31,15 @@ Below, its a recording of a working demonstration. Note that we just sent the tu
 
 Just clone this project in your ROS2 workspace:
 ```bash
+cd ~/ros_ws/src
 git clone https://github.com/luizcarloscf/autonomous-robots.git
+cd ~/ros_ws
 ```
 
 Then, build this package with:
 ```bash
 rosdep install -i --from-path src --rosdistro humble -y
-colcon build --packages-select=turtlesim_controller
+colcon build --packages-up-to=turtlesim_controller
 source install/setup.bash
 ```
 
@@ -55,7 +57,7 @@ ros2 action send_goal /turtletask turtlesim_interfaces/action/TurtleTask "{x: 1.
 The turtle controller exposes several configuration [parameters], you can check them with:
 
 ```bash
-os2 param list
+ros2 param list
 ```
 
 To modify the parameter:
