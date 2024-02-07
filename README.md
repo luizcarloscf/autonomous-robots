@@ -1,7 +1,7 @@
 ## Autonomous Robots
 
 [![ROS2](https://img.shields.io/badge/ROS2-Humble-blue.svg?style=flat-square)](https://docs.ros.org/en/humble/index.html)
-[![Docker build](https://img.shields.io/github/actions/workflow/status/luizcarloscf/autonomous-robots/docker.yml?style=flat-square)](https://github.com/luizcarloscf/autonomous-robots/actions)
+[![Docker build](https://img.shields.io/github/actions/workflow/status/luizcarloscf/autonomous-robots/main.yml?style=flat-square)](https://github.com/luizcarloscf/autonomous-robots/actions)
 [![Docker image size](https://img.shields.io/docker/image-size/luizcarloscf/autonomous-robots?sort=semver&style=flat-square)](https://hub.docker.com/repository/docker/luizcarloscf/autonomous-robots)
 [![Docker image tag](https://img.shields.io/docker/v/luizcarloscf/autonomous-robots?sort=semver&style=flat-square)](https://hub.docker.com/repository/docker/luizcarloscf/autonomous-robots)
 [![Docker pulls](https://img.shields.io/docker/pulls/luizcarloscf/autonomous-robots?style=flat-square)](https://hub.docker.com/repository/docker/luizcarloscf/autonomous-robots)
